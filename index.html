@@ -11,32 +11,155 @@
     <script src="js/bootstrap.min.js"></script>
     <script src="js/angular.min.js"></script>
     <script src="js/snap.svg-min.js"></script>
+    <script src="js/snap-plugin.js"></script>
     <script src="js/test.js"></script>
+    <script src="js/block-controller.js"></script>
+
+    <script src="js/block-directive.js"></script>
 </head>
 <body>
+
+
     <div class="container">
         <div class="row" ng-controller="BlockCtrl">
-            <div class="col-md-10" >
-                <stadium data="blocks">
-                    <background></background>
-                    <block name="{{block.name}}" x="{{block.x}}" y="{{block.y}}" ng-repeat="block in blocks"></block>
-                </stadium>
-             </div>
-            <div id="menu2" class="col-md-2">
-                <div class="well" >
-                    <form role="form">
-                        <div class="form-group">
-                            <label for="blockName">Nieuw vak</label>
-                            <input type="text" class="form-control" id="blockName" placeholder="Vak" ng-model="block.name">
+            <div id="newBlockModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                            <h4 class="modal-title">Nieuw vak</h4>
                         </div>
-                        <button type="submit" class="btn btn-important" ng-click="create(block)">Oplsaan</button>
-                    </form>
-                    <h3>Vakken</h3>
-                    <ul class="list-group">
-                        <li class="list-group-item" ng-repeat="block in blocks" >Vak {{block.name}}</li>
-                    </ul>
-                </div>
 
+                        <form class="form-horizontal" role="form">
+                            <div class="form-group">
+                                <label for="blockName" class="col-sm-6 control-label">Vaknaam</label>
+                                <div class="col-sm-6">
+                                    <input type="text" class="form-control" id="blockName" placeholder="Vaknaam" ng-model="name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="numberOfRows" class="col-sm-6 control-label">Aantal rijen</label>
+                                <div class="col-sm-6">
+                                    <input type="number" class="form-control" id="numberOfRows" placeholder="20">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="numberOfSeats" class="col-sm-6 control-label">Aantal stoelen</label>
+                                <div class="col-sm-6">
+                                    <input type="number" class="form-control" id="numberOfSeats" placeholder="20">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="numberOfSeats" class="col-sm-6 control-label">Hoekvak (graden) </label>
+                                <div class="col-sm-6">
+                                    <select id="angle" class="form-control" ng-model="angle">
+                                        <option>0</option>
+                                        <option>15</option>
+                                        <option>30</option>
+                                        <option>45</option>
+                                        <option>60</option>
+                                        <option>90</option>
+                                    </select>
+                               </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="numberOfSeats" class="col-sm-6 control-label">Hoekvak (graden) </label>
+                                <div class="col-sm-6">
+                                    <select id="angle" class="form-control" ng-model="priceLevel" ng-options="priceLevel.level for priceLevel in priceLevels">
+                                        <option value="">-- prijsniveau --</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                                    <div class="modal-footer">
+                                <button type="button" class="btn btn-default" data-dismiss="modal">Sluiten</button>
+                                <button type="button" class="btn btn-primary" data-dismiss="modal" ng-click="create(name, angle, priceLevel)">Opslaan</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <!-- navbar -->
+            <div class="navbar navbar-default" role="navigation">
+                <div class="container">
+                    <div class="navbar-header">
+                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                            <span class="sr-only">Toggle navigation</span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                            <span class="icon-bar"></span>
+                        </button>
+                        <a class="navbar-brand" href="#">T2M 2.0</a>
+                    </div>
+                    <div class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li class="active"><a href="#">Fans</a></li>
+                            <li><a href="#about">Wedstrijden</a></li>
+                            <li><a href="#contact">Card Management</a></li>
+
+                        </ul>
+                        <ul class="nav navbar-nav navbar-right">
+                            <li><a href="../navbar/">ingelogd als Marie</a></li>
+
+                        </ul>
+                    </div><!--/.nav-collapse -->
+                </div>
+            </div>
+
+
+            <div class="col-md-8" >
+                <div class="row">
+                    <div class="col-md-12" >
+
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                   <button class="btn btn-default" type="button" ng-click="zoomIn()"><span class="glyphicon glyphicon-zoom-in"></span></button>
+                                </span>
+                                <input type="text" class="form-control" ng-model="zoom.level">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-default" type="button" ng-click="zoomOut()"><span class="glyphicon glyphicon-zoom-out"></span></button>
+                                 </span>
+                            </div>
+                        </div>
+                        <div class="col-md-9">
+
+
+                        </div>
+                        <div class="col-md-12">
+                            <stadium data="blocks" zoom="zoom">
+                                <background></background>
+                                <block block="block"
+                                       ng-repeat="block in blocks"></block>
+                            </stadium>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="menu2" class="col-md-4">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#stadium" data-toggle="tab">Stadion</a></li>
+                    <li><a href="#profile" data-toggle="tab">Wedstrijd</a></li>
+                    <li><a href="#messages" data-toggle="tab">Verkoop</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane active" id="stadium">
+                        <div class="well" >
+                            <form role="form">
+                                <div class="form-group">
+                                    <label for="blockName">Nieuw vak</label>
+                                    <input type="text" class="form-control" id="blockName" placeholder="Vak" ng-model="name">
+                                </div>
+                                <button type="submit" class="btn btn-important" ng-click="create(name)">Opslaan</button>
+                            </form>
+                            <h3>Vakken</h3>
+                            <ul class="list-group">
+                                <li class="list-group-item" ng-repeat="block in blocks" >Vak - selected {{block.selected}}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

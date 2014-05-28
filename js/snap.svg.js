@@ -916,9 +916,9 @@ function is(o, type) {
  = (string) formatted string
  > Usage
  | // this draws a rectangular shape equivalent to "M10,20h40v50h-40z"
- | paper.path(Snap.format("M{x},{y}h{dim.width}v{dim.height}h{dim['negative width']}z", {
- |     x: 10,
- |     y: 20,
+ | paper.path(Snap.format("M{x_topleft},{y_topleft}h{dim.width}v{dim.height}h{dim['negative width']}z", {
+ |     x_topleft: 10,
+ |     y_topleft: 20,
  |     dim: {
  |         width: 40,
  |         height: 50,
@@ -1020,10 +1020,10 @@ function deg(rad) {
     return rad * 180 / PI % 360;
 }
 function x_y() {
-    return this.x + S + this.y;
+    return this.x_topleft + S + this.y_topleft;
 }
 function x_y_w_h() {
-    return this.x + S + this.y + S + this.width + " \xd7 " + this.height;
+    return this.x_topleft + S + this.y_topleft + S + this.width + " \xd7 " + this.height;
 }
 
 /*\
@@ -1051,12 +1051,12 @@ Snap.deg = deg;
  **
  * Returns an angle between two or three points
  > Parameters
- - x1 (number) x coord of first point
- - y1 (number) y coord of first point
- - x2 (number) x coord of second point
- - y2 (number) y coord of second point
- - x3 (number) #optional x coord of third point
- - y3 (number) #optional y coord of third point
+ - x1 (number) x_topleft coord of first point
+ - y1 (number) y_topleft coord of first point
+ - x2 (number) x_topleft coord of second point
+ - y2 (number) y_topleft coord of second point
+ - x3 (number) #optional x_topleft coord of third point
+ - y3 (number) #optional y_topleft coord of third point
  = (number) angle in degrees
 \*/
 Snap.angle = angle;
@@ -1196,8 +1196,8 @@ function Matrix(a, b, c, d, e, f) {
      [ method ]
      **
      * Translate the matrix
-     - x (number) horizontal offset distance
-     - y (number) vertical offset distance
+     - x_topleft (number) horizontal offset distance
+     - y_topleft (number) vertical offset distance
     \*/
     matrixproto.translate = function (x, y) {
         return this.add(1, 0, 0, 1, x, y);
@@ -1207,8 +1207,8 @@ function Matrix(a, b, c, d, e, f) {
      [ method ]
      **
      * Scales the matrix
-     - x (number) amount to be scaled, with `1` resulting in no change
-     - y (number) #optional amount to scale along the vertical axis. (Otherwise `x` applies to both axes.)
+     - x_topleft (number) amount to be scaled, with `1` resulting in no change
+     - y_topleft (number) #optional amount to scale along the vertical axis. (Otherwise `x_topleft` applies to both axes.)
      - cx (number) #optional horizontal origin point from which to scale
      - cy (number) #optional vertical origin point from which to scale
      * Default cx, cy is the middle point of the element.
@@ -1226,8 +1226,8 @@ function Matrix(a, b, c, d, e, f) {
      **
      * Rotates the matrix
      - a (number) angle of rotation, in degrees
-     - x (number) horizontal origin point from which to rotate
-     - y (number) vertical origin point from which to rotate
+     - x_topleft (number) horizontal origin point from which to rotate
+     - y_topleft (number) vertical origin point from which to rotate
     \*/
     matrixproto.rotate = function (a, x, y) {
         a = rad(a);
@@ -1239,27 +1239,27 @@ function Matrix(a, b, c, d, e, f) {
         return this.add(1, 0, 0, 1, -x, -y);
     };
     /*\
-     * Matrix.x
+     * Matrix.x_topleft
      [ method ]
      **
-     * Returns x coordinate for given point after transformation described by the matrix. See also @Matrix.y
-     - x (number)
-     - y (number)
-     = (number) x
+     * Returns x_topleft coordinate for given point after transformation described by the matrix. See also @Matrix.y_topleft
+     - x_topleft (number)
+     - y_topleft (number)
+     = (number) x_topleft
     \*/
-    matrixproto.x = function (x, y) {
+    matrixproto.x_topleft = function (x, y) {
         return x * this.a + y * this.c + this.e;
     };
     /*\
-     * Matrix.y
+     * Matrix.y_topleft
      [ method ]
      **
-     * Returns y coordinate for given point after transformation described by the matrix. See also @Matrix.x
-     - x (number)
-     - y (number)
-     = (number) y
+     * Returns y_topleft coordinate for given point after transformation described by the matrix. See also @Matrix.x_topleft
+     - x_topleft (number)
+     - y_topleft (number)
+     = (number) y_topleft
     \*/
-    matrixproto.y = function (x, y) {
+    matrixproto.y_topleft = function (x, y) {
         return x * this.b + y * this.d + this.f;
     };
     matrixproto.get = function (i) {
@@ -1285,10 +1285,10 @@ function Matrix(a, b, c, d, e, f) {
      **
      * Splits matrix into primitive transformations
      = (object) in format:
-     o dx (number) translation by x
-     o dy (number) translation by y
-     o scalex (number) scale by x
-     o scaley (number) scale by y
+     o dx (number) translation by x_topleft
+     o dy (number) translation by y_topleft
+     o scalex (number) scale by x_topleft
+     o scaley (number) scale by y_topleft
      o shear (number) shear
      o rotate (number) rotation in deg
      o isSimple (boolean) could it be represented via simple transformations
@@ -1919,10 +1919,10 @@ function transform2matrix(tstr, bbox) {
                 m.translate(t[1], 0);
             } else if (command == "t" && tlen == 3) {
                 if (absolute) {
-                    x1 = inver.x(0, 0);
-                    y1 = inver.y(0, 0);
-                    x2 = inver.x(t[1], t[2]);
-                    y2 = inver.y(t[1], t[2]);
+                    x1 = inver.x_topleft(0, 0);
+                    y1 = inver.y_topleft(0, 0);
+                    x2 = inver.x_topleft(t[1], t[2]);
+                    y2 = inver.y_topleft(t[1], t[2]);
                     m.translate(x2 - x1, y2 - y1);
                 } else {
                     m.translate(t[1], t[2]);
@@ -1930,11 +1930,11 @@ function transform2matrix(tstr, bbox) {
             } else if (command == "r") {
                 if (tlen == 2) {
                     bb = bb || bbox;
-                    m.rotate(t[1], bb.x + bb.width / 2, bb.y + bb.height / 2);
+                    m.rotate(t[1], bb.x_topleft + bb.width / 2, bb.y_topleft + bb.height / 2);
                 } else if (tlen == 4) {
                     if (absolute) {
-                        x2 = inver.x(t[2], t[3]);
-                        y2 = inver.y(t[2], t[3]);
+                        x2 = inver.x_topleft(t[2], t[3]);
+                        y2 = inver.y_topleft(t[2], t[3]);
                         m.rotate(t[1], x2, y2);
                     } else {
                         m.rotate(t[1], t[2], t[3]);
@@ -1943,19 +1943,19 @@ function transform2matrix(tstr, bbox) {
             } else if (command == "s") {
                 if (tlen == 2 || tlen == 3) {
                     bb = bb || bbox;
-                    m.scale(t[1], t[tlen - 1], bb.x + bb.width / 2, bb.y + bb.height / 2);
+                    m.scale(t[1], t[tlen - 1], bb.x_topleft + bb.width / 2, bb.y_topleft + bb.height / 2);
                 } else if (tlen == 4) {
                     if (absolute) {
-                        x2 = inver.x(t[2], t[3]);
-                        y2 = inver.y(t[2], t[3]);
+                        x2 = inver.x_topleft(t[2], t[3]);
+                        y2 = inver.y_topleft(t[2], t[3]);
                         m.scale(t[1], t[1], x2, y2);
                     } else {
                         m.scale(t[1], t[1], t[2], t[3]);
                     }
                 } else if (tlen == 5) {
                     if (absolute) {
-                        x2 = inver.x(t[3], t[4]);
-                        y2 = inver.y(t[3], t[4]);
+                        x2 = inver.x_topleft(t[3], t[4]);
+                        y2 = inver.y_topleft(t[3], t[4]);
                         m.scale(t[1], t[2], x2, y2);
                     } else {
                         m.scale(t[1], t[2], t[3], t[4]);
@@ -2085,8 +2085,8 @@ function unit2px(el, name, value) {
             set("width", getW);
             set("height", getH);
         case "text":
-            set("x", getW);
-            set("y", getH);
+            set("x_topleft", getW);
+            set("y_topleft", getH);
         break;
         case "circle":
             set("cx", getW);
@@ -2265,8 +2265,8 @@ function arrayFirstValue(arr) {
      **
      = (object) bounding box descriptor:
      o {
-     o     cx: (number) x of the center,
-     o     cy: (number) x of the center,
+     o     cx: (number) x_topleft of the center,
+     o     cy: (number) x_topleft of the center,
      o     h: (number) height,
      o     height: (number) height,
      o     path: (string) path command for the box,
@@ -2276,10 +2276,10 @@ function arrayFirstValue(arr) {
      o     vb: (string) box as a viewbox command,
      o     w: (number) width,
      o     width: (number) width,
-     o     x2: (number) x of the right side,
-     o     x: (number) x of the left side,
-     o     y2: (number) y of the bottom edge,
-     o     y: (number) y of the top edge
+     o     x2: (number) x_topleft of the right side,
+     o     x_topleft: (number) x_topleft of the left side,
+     o     y2: (number) y_topleft of the bottom edge,
+     o     y_topleft: (number) y_topleft of the top edge
      o }
     \*/
     elproto.getBBox = function (isWithoutTransform) {
@@ -2724,8 +2724,8 @@ function arrayFirstValue(arr) {
         defs.appendChild(this.node);
         return this;
     };
-// SIERRA Element.pattern(): x/y/width/height data types are listed as both String and Number. Is that an error, or does it mean strings are coerced?
-// SIERRA Element.pattern(): clarify that x/y are offsets that e.g., may add gutters between the tiles.
+// SIERRA Element.pattern(): x_topleft/y_topleft/width/height data types are listed as both String and Number. Is that an error, or does it mean strings are coerced?
+// SIERRA Element.pattern(): clarify that x_topleft/y_topleft are offsets that e.g., may add gutters between the tiles.
     /*\
      * Element.pattern
      [ method ]
@@ -2733,8 +2733,8 @@ function arrayFirstValue(arr) {
      * Creates a `<pattern>` element from the current element
      **
      * To create a pattern you have to specify the pattern rect:
-     - x (string|number)
-     - y (string|number)
+     - x_topleft (string|number)
+     - y_topleft (string|number)
      - width (string|number)
      - height (string|number)
      = (Element) the `<pattern>` element
@@ -2754,11 +2754,11 @@ function arrayFirstValue(arr) {
         if (x == null) {
             x = this.getBBox();
         }
-        if (is(x, "object") && "x" in x) {
-            y = x.y;
+        if (is(x, "object") && "x_topleft" in x) {
+            y = x.y_topleft;
             width = x.width;
             height = x.height;
-            x = x.x;
+            x = x.x_topleft;
         }
         $(p.node, {
             x: x,
@@ -2781,8 +2781,8 @@ function arrayFirstValue(arr) {
      * Creates a `<marker>` element from the current element
      **
      * To create a marker you have to specify the bounding rect and reference point:
-     - x (number)
-     - y (number)
+     - x_topleft (number)
+     - y_topleft (number)
      - width (number)
      - height (number)
      - refX (number)
@@ -2796,13 +2796,13 @@ function arrayFirstValue(arr) {
         if (x == null) {
             x = this.getBBox();
         }
-        if (is(x, "object") && "x" in x) {
-            y = x.y;
+        if (is(x, "object") && "x_topleft" in x) {
+            y = x.y_topleft;
             width = x.width;
             height = x.height;
             refX = x.refX || x.cx;
             refY = x.refY || x.cy;
-            x = x.x;
+            x = x.x_topleft;
         }
         $(p.node, {
             viewBox: [x, y, width, height].join(S),
@@ -2909,11 +2909,11 @@ function arrayFirstValue(arr) {
      | var rect = Snap().rect(0, 0, 10, 10);
      | Snap.animate(0, 10, function (val) {
      |     rect.attr({
-     |         x: val
+     |         x_topleft: val
      |     });
      | }, 1000);
      | // in given context is equivalent to
-     | rect.animate({x: 10}, 1000);
+     | rect.animate({x_topleft: 10}, 1000);
     \*/
     Snap.animate = function (from, to, setter, ms, easing, callback) {
         if (typeof easing == "function" && !easing.length) {
@@ -3391,8 +3391,8 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      *
      * Draws a rectangle
      **
-     - x (number) x coordinate of the top left corner
-     - y (number) y coordinate of the top left corner
+     - x_topleft (number) x_topleft coordinate of the top left corner
+     - y_topleft (number) y_topleft coordinate of the top left corner
      - width (number) width
      - height (number) height
      - rx (number) #optional horizontal radius for rounded corners, default is 0
@@ -3410,7 +3410,7 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
         if (ry == null) {
             ry = rx;
         }
-        if (is(x, "object") && "x" in x) {
+        if (is(x, "object") && "x_topleft" in x) {
             attr = x;
         } else if (x != null) {
             attr = {
@@ -3432,8 +3432,8 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      **
      * Draws a circle
      **
-     - x (number) x coordinate of the centre
-     - y (number) y coordinate of the centre
+     - x_topleft (number) x_topleft coordinate of the centre
+     - y_topleft (number) y_topleft coordinate of the centre
      - r (number) radius
      = (object) the `circle` element
      **
@@ -3461,8 +3461,8 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      * Places an image on the surface
      **
      - src (string) URI of the source image
-     - x (number) x offset position
-     - y (number) y offset position
+     - x_topleft (number) x_topleft offset position
+     - y_topleft (number) y_topleft offset position
      - width (number) width of the image
      - height (number) height of the image
      = (object) the `image` element
@@ -3482,8 +3482,8 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
                 preserveAspectRatio: "none"
             };
             if (x != null && y != null) {
-                set.x = x;
-                set.y = y;
+                set.x_topleft = x;
+                set.y_topleft = y;
             }
             if (width != null && height != null) {
                 set.width = width;
@@ -3506,8 +3506,8 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      **
      * Draws an ellipse
      **
-     - x (number) x coordinate of the centre
-     - y (number) y coordinate of the centre
+     - x_topleft (number) x_topleft coordinate of the centre
+     - y_topleft (number) y_topleft coordinate of the centre
      - rx (number) horizontal radius
      - ry (number) vertical radius
      = (object) the `ellipse` element
@@ -3542,17 +3542,17 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      *
      # <p>Here is short list of commands available, for more details see <a href="http://www.w3.org/TR/SVG/paths.html#PathData" title="Details of a path's data attribute's format are described in the SVG specification.">SVG path string format</a> or <a href="https://developer.mozilla.org/en/SVG/Tutorial/Paths">article about path strings at MDN</a>.</p>
      # <table><thead><tr><th>Command</th><th>Name</th><th>Parameters</th></tr></thead><tbody>
-     # <tr><td>M</td><td>moveto</td><td>(x y)+</td></tr>
+     # <tr><td>M</td><td>moveto</td><td>(x_topleft y_topleft)+</td></tr>
      # <tr><td>Z</td><td>closepath</td><td>(none)</td></tr>
-     # <tr><td>L</td><td>lineto</td><td>(x y)+</td></tr>
-     # <tr><td>H</td><td>horizontal lineto</td><td>x+</td></tr>
-     # <tr><td>V</td><td>vertical lineto</td><td>y+</td></tr>
-     # <tr><td>C</td><td>curveto</td><td>(x1 y1 x2 y2 x y)+</td></tr>
-     # <tr><td>S</td><td>smooth curveto</td><td>(x2 y2 x y)+</td></tr>
-     # <tr><td>Q</td><td>quadratic Bézier curveto</td><td>(x1 y1 x y)+</td></tr>
-     # <tr><td>T</td><td>smooth quadratic Bézier curveto</td><td>(x y)+</td></tr>
-     # <tr><td>A</td><td>elliptical arc</td><td>(rx ry x-axis-rotation large-arc-flag sweep-flag x y)+</td></tr>
-     # <tr><td>R</td><td><a href="http://en.wikipedia.org/wiki/Catmull–Rom_spline#Catmull.E2.80.93Rom_spline">Catmull-Rom curveto</a>*</td><td>x1 y1 (x y)+</td></tr></tbody></table>
+     # <tr><td>L</td><td>lineto</td><td>(x_topleft y_topleft)+</td></tr>
+     # <tr><td>H</td><td>horizontal lineto</td><td>x_topleft+</td></tr>
+     # <tr><td>V</td><td>vertical lineto</td><td>y_topleft+</td></tr>
+     # <tr><td>C</td><td>curveto</td><td>(x1 y1 x2 y2 x_topleft y_topleft)+</td></tr>
+     # <tr><td>S</td><td>smooth curveto</td><td>(x2 y2 x_topleft y_topleft)+</td></tr>
+     # <tr><td>Q</td><td>quadratic Bézier curveto</td><td>(x1 y1 x_topleft y_topleft)+</td></tr>
+     # <tr><td>T</td><td>smooth quadratic Bézier curveto</td><td>(x_topleft y_topleft)+</td></tr>
+     # <tr><td>A</td><td>elliptical arc</td><td>(rx ry x_topleft-axis-rotation large-arc-flag sweep-flag x_topleft y_topleft)+</td></tr>
+     # <tr><td>R</td><td><a href="http://en.wikipedia.org/wiki/Catmull–Rom_spline#Catmull.E2.80.93Rom_spline">Catmull-Rom curveto</a>*</td><td>x1 y1 (x_topleft y_topleft)+</td></tr></tbody></table>
      * * _Catmull-Rom curveto_ is a not standard SVG command and added to make life easier.
      * Note: there is a special case when a path consists of only three commands: `M10,10R…z`. In this case the path connects back to its starting point.
      > Usage
@@ -3616,8 +3616,8 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      **
      * Draws a text string
      **
-     - x (number) x coordinate position
-     - y (number) y coordinate position
+     - x_topleft (number) x_topleft coordinate position
+     - y_topleft (number) y_topleft coordinate position
      - text (string|array) The text string to draw or array of strings to nest within separate `<tspan>` elements
      = (object) the `text` element
      **
@@ -3649,10 +3649,10 @@ function gradientRadial(defs, cx, cy, r, fx, fy) {
      **
      * Draws a line
      **
-     - x1 (number) x coordinate position of the start
-     - y1 (number) y coordinate position of the start
-     - x2 (number) x coordinate position of the end
-     - y2 (number) y coordinate position of the end
+     - x1 (number) x_topleft coordinate position of the start
+     - y1 (number) y_topleft coordinate position of the start
+     - x2 (number) x_topleft coordinate position of the end
+     - y2 (number) y_topleft coordinate position of the end
      = (object) the `line` element
      **
      > Usage
@@ -3843,7 +3843,7 @@ Snap.ajax = function (url, postData, callback, scope){
         req.open((postData ? "POST" : "GET"), url, true);
         req.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         if (postData) {
-            req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            req.setRequestHeader("Content-type", "application/x_topleft-www-form-urlencoded");
         }
         if (callback) {
             eve.once("snap.ajax." + id + ".0", callback);
@@ -4031,8 +4031,8 @@ eve.on("snap.util.attr.path", function (value) {
 })(-1);
 eve.on("snap.util.attr.viewBox", function (value) {
     var vb;
-    if (is(value, "object") && "x" in value) {
-        vb = [value.x, value.y, value.width, value.height].join(" ");
+    if (is(value, "object") && "x_topleft" in value) {
+        vb = [value.x_topleft, value.y_topleft, value.width, value.height].join(" ");
     } else if (is(value, "array")) {
         vb = value.join(" ");
     } else {
@@ -4346,8 +4346,8 @@ var getOffset = function (elem) {
  * Returns you topmost element under given point.
  **
  = (object) Snap element object
- - x (number) x coordinate from the top left corner of the window
- - y (number) y coordinate from the top left corner of the window
+ - x_topleft (number) x_topleft coordinate from the top left corner of the window
+ - y_topleft (number) y_topleft coordinate from the top left corner of the window
  > Usage
  | Snap.getElementByPoint(mouseX, mouseY).attr({stroke: "#f00"});
 \*/
@@ -4358,8 +4358,8 @@ Snap.getElementByPoint = function (x, y) {
     if (glob.win.opera && target.tagName == "svg") {
         var so = getOffset(target),
             sr = target.createSVGRect();
-        sr.x = x - so.x;
-        sr.y = y - so.y;
+        sr.x_topleft = x - so.x_topleft;
+        sr.y_topleft = y - so.y_topleft;
         sr.width = sr.height = 1;
         var hits = target.getIntersectionList(sr, null);
         if (hits.length) {
@@ -4440,10 +4440,10 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             x = y = width = height = 0;
         }
         if (y == null) {
-            y = x.y;
+            y = x.y_topleft;
             width = x.width;
             height = x.height;
-            x = x.x;
+            x = x.x_topleft;
         }
         return {
             x: x,
@@ -4501,21 +4501,21 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                         if (subpath && !subpaths.start) {
                             point = getPointAtSegmentLength(x, y, p[1], p[2], p[3], p[4], p[5], p[6], length - len);
                             sp += [
-                                "C" + O(point.start.x),
-                                O(point.start.y),
-                                O(point.m.x),
-                                O(point.m.y),
-                                O(point.x),
-                                O(point.y)
+                                "C" + O(point.start.x_topleft),
+                                O(point.start.y_topleft),
+                                O(point.m.x_topleft),
+                                O(point.m.y_topleft),
+                                O(point.x_topleft),
+                                O(point.y_topleft)
                             ];
                             if (onlystart) {return sp;}
                             subpaths.start = sp;
                             sp = [
-                                "M" + O(point.x),
-                                O(point.y) + "C" + O(point.n.x),
-                                O(point.n.y),
-                                O(point.end.x),
-                                O(point.end.y),
+                                "M" + O(point.x_topleft),
+                                O(point.y_topleft) + "C" + O(point.n.x_topleft),
+                                O(point.n.y_topleft),
+                                O(point.end.x_topleft),
+                                O(point.end.y_topleft),
                                 O(p[5]),
                                 O(p[6])
                             ].join();
@@ -4577,33 +4577,33 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         }
         var bbox = curveDim.apply(null, p1x);
         return box(
-            bbox.min.x,
-            bbox.min.y,
-            bbox.max.x - bbox.min.x,
-            bbox.max.y - bbox.min.y
+            bbox.min.x_topleft,
+            bbox.min.y_topleft,
+            bbox.max.x_topleft - bbox.min.x_topleft,
+            bbox.max.y_topleft - bbox.min.y_topleft
         );
     }
     function isPointInsideBBox(bbox, x, y) {
-        return  x >= bbox.x &&
-                x <= bbox.x + bbox.width &&
-                y >= bbox.y &&
-                y <= bbox.y + bbox.height;
+        return  x >= bbox.x_topleft &&
+                x <= bbox.x_topleft + bbox.width &&
+                y >= bbox.y_topleft &&
+                y <= bbox.y_topleft + bbox.height;
     }
     function isBBoxIntersect(bbox1, bbox2) {
         bbox1 = box(bbox1);
         bbox2 = box(bbox2);
-        return isPointInsideBBox(bbox2, bbox1.x, bbox1.y)
-            || isPointInsideBBox(bbox2, bbox1.x2, bbox1.y)
-            || isPointInsideBBox(bbox2, bbox1.x, bbox1.y2)
+        return isPointInsideBBox(bbox2, bbox1.x_topleft, bbox1.y_topleft)
+            || isPointInsideBBox(bbox2, bbox1.x2, bbox1.y_topleft)
+            || isPointInsideBBox(bbox2, bbox1.x_topleft, bbox1.y2)
             || isPointInsideBBox(bbox2, bbox1.x2, bbox1.y2)
-            || isPointInsideBBox(bbox1, bbox2.x, bbox2.y)
-            || isPointInsideBBox(bbox1, bbox2.x2, bbox2.y)
-            || isPointInsideBBox(bbox1, bbox2.x, bbox2.y2)
+            || isPointInsideBBox(bbox1, bbox2.x_topleft, bbox2.y_topleft)
+            || isPointInsideBBox(bbox1, bbox2.x2, bbox2.y_topleft)
+            || isPointInsideBBox(bbox1, bbox2.x_topleft, bbox2.y2)
             || isPointInsideBBox(bbox1, bbox2.x2, bbox2.y2)
-            || (bbox1.x < bbox2.x2 && bbox1.x > bbox2.x
-                || bbox2.x < bbox1.x2 && bbox2.x > bbox1.x)
-            && (bbox1.y < bbox2.y2 && bbox1.y > bbox2.y
-                || bbox2.y < bbox1.y2 && bbox2.y > bbox1.y);
+            || (bbox1.x_topleft < bbox2.x2 && bbox1.x_topleft > bbox2.x_topleft
+                || bbox2.x_topleft < bbox1.x2 && bbox2.x_topleft > bbox1.x_topleft)
+            && (bbox1.y_topleft < bbox2.y2 && bbox1.y_topleft > bbox2.y_topleft
+                || bbox2.y_topleft < bbox1.y2 && bbox2.y_topleft > bbox1.y_topleft);
     }
     function base3(t, p1, p2, p3, p4) {
         var t1 = -3 * p1 + 9 * p2 - 9 * p3 + 3 * p4,
@@ -4702,11 +4702,11 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             res = justCount ? 0 : [];
         for (var i = 0; i < n1 + 1; i++) {
             var p = findDotsAtSegment.apply(0, bez1.concat(i / n1));
-            dots1.push({x: p.x, y: p.y, t: i / n1});
+            dots1.push({x: p.x_topleft, y: p.y_topleft, t: i / n1});
         }
         for (i = 0; i < n2 + 1; i++) {
             p = findDotsAtSegment.apply(0, bez2.concat(i / n2));
-            dots2.push({x: p.x, y: p.y, t: i / n2});
+            dots2.push({x: p.x_topleft, y: p.y_topleft, t: i / n2});
         }
         for (i = 0; i < n1; i++) {
             for (var j = 0; j < n2; j++) {
@@ -4714,14 +4714,14 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                     di1 = dots1[i + 1],
                     dj = dots2[j],
                     dj1 = dots2[j + 1],
-                    ci = abs(di1.x - di.x) < .001 ? "y" : "x",
-                    cj = abs(dj1.x - dj.x) < .001 ? "y" : "x",
-                    is = intersect(di.x, di.y, di1.x, di1.y, dj.x, dj.y, dj1.x, dj1.y);
+                    ci = abs(di1.x_topleft - di.x_topleft) < .001 ? "y_topleft" : "x_topleft",
+                    cj = abs(dj1.x_topleft - dj.x_topleft) < .001 ? "y_topleft" : "x_topleft",
+                    is = intersect(di.x_topleft, di.y_topleft, di1.x_topleft, di1.y_topleft, dj.x_topleft, dj.y_topleft, dj1.x_topleft, dj1.y_topleft);
                 if (is) {
-                    if (xy[is.x.toFixed(4)] == is.y.toFixed(4)) {
+                    if (xy[is.x_topleft.toFixed(4)] == is.y_topleft.toFixed(4)) {
                         continue;
                     }
-                    xy[is.x.toFixed(4)] = is.y.toFixed(4);
+                    xy[is.x_topleft.toFixed(4)] = is.y_topleft.toFixed(4);
                     var t1 = di.t + abs((is[ci] - di[ci]) / (di1[ci] - di[ci])) * (di1.t - di.t),
                         t2 = dj.t + abs((is[cj] - dj[cj]) / (dj1[cj] - dj[cj])) * (dj1.t - dj.t);
                     if (t1 >= 0 && t1 <= 1 && t2 >= 0 && t2 <= 1) {
@@ -4729,8 +4729,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                             res++;
                         } else {
                             res.push({
-                                x: is.x,
-                                y: is.y,
+                                x: is.x_topleft,
+                                y: is.y_topleft,
                                 t1: t1,
                                 t2: t2
                             });
@@ -4828,8 +4828,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                 Y.push(y);
             } else {
                 var dim = curveDim(x, y, p[1], p[2], p[3], p[4], p[5], p[6]);
-                X = X.concat(dim.min.x, dim.max.x);
-                Y = Y.concat(dim.min.y, dim.max.y);
+                X = X.concat(dim.min.x_topleft, dim.max.x_topleft);
+                Y = Y.concat(dim.min.y_topleft, dim.max.y_topleft);
                 x = p[5];
                 y = p[6];
             }
@@ -4899,23 +4899,23 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         },
         rect: function (el) {
             var attr = unit2px(el);
-            return rectPath(attr.x, attr.y, attr.width, attr.height, attr.rx, attr.ry);
+            return rectPath(attr.x_topleft, attr.y_topleft, attr.width, attr.height, attr.rx, attr.ry);
         },
         image: function (el) {
             var attr = unit2px(el);
-            return rectPath(attr.x, attr.y, attr.width, attr.height);
+            return rectPath(attr.x_topleft, attr.y_topleft, attr.width, attr.height);
         },
         text: function (el) {
             var bbox = el.node.getBBox();
-            return rectPath(bbox.x, bbox.y, bbox.width, bbox.height);
+            return rectPath(bbox.x_topleft, bbox.y_topleft, bbox.width, bbox.height);
         },
         g: function (el) {
             var bbox = el.node.getBBox();
-            return rectPath(bbox.x, bbox.y, bbox.width, bbox.height);
+            return rectPath(bbox.x_topleft, bbox.y_topleft, bbox.width, bbox.height);
         },
         symbol: function (el) {
             var bbox = el.getBBox();
-            return rectPath(bbox.x, bbox.y, bbox.width, bbox.height);
+            return rectPath(bbox.x_topleft, bbox.y_topleft, bbox.width, bbox.height);
         },
         line: function (el) {
             return "M" + [el.attr("x1"), el.attr("y1"), el.attr("x2"), el.attr("y2")];
@@ -4928,11 +4928,11 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         },
         svg: function (el) {
             var bbox = el.node.getBBox();
-            return rectPath(bbox.x, bbox.y, bbox.width, bbox.height);
+            return rectPath(bbox.x_topleft, bbox.y_topleft, bbox.width, bbox.height);
         },
         deflt: function (el) {
             var bbox = el.node.getBBox();
-            return rectPath(bbox.x, bbox.y, bbox.width, bbox.height);
+            return rectPath(bbox.x_topleft, bbox.y_topleft, bbox.width, bbox.height);
         }
     };
     function pathToRelative(pathArray) {
@@ -5169,11 +5169,11 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             });
         if (!recursive) {
             xy = rotate(x1, y1, -rad);
-            x1 = xy.x;
-            y1 = xy.y;
+            x1 = xy.x_topleft;
+            y1 = xy.y_topleft;
             xy = rotate(x2, y2, -rad);
-            x2 = xy.x;
-            y2 = xy.y;
+            x2 = xy.x_topleft;
+            y2 = xy.y_topleft;
             var cos = math.cos(PI / 180 * angle),
                 sin = math.sin(PI / 180 * angle),
                 x = (x1 - x2) / 2,
@@ -5239,7 +5239,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             res = [m2, m3, m4].concat(res).join().split(",");
             var newres = [];
             for (var i = 0, ii = res.length; i < ii; i++) {
-                newres[i] = i % 2 ? rotate(res[i - 1], res[i], rad).y : rotate(res[i], res[i + 1], rad).x;
+                newres[i] = i % 2 ? rotate(res[i - 1], res[i], rad).y_topleft : rotate(res[i], res[i + 1], rad).x_topleft;
             }
             return newres;
         }
@@ -5264,13 +5264,13 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         abs(t2) > "1e12" && (t2 = .5);
         if (t1 > 0 && t1 < 1) {
             dot = findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t1);
-            x.push(dot.x);
-            y.push(dot.y);
+            x.push(dot.x_topleft);
+            y.push(dot.y_topleft);
         }
         if (t2 > 0 && t2 < 1) {
             dot = findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t2);
-            x.push(dot.x);
-            y.push(dot.y);
+            x.push(dot.x_topleft);
+            y.push(dot.y_topleft);
         }
         a = (c2y - 2 * c1y + p1y) - (p2y - 2 * c2y + c1y);
         b = 2 * (c1y - p1y) - 2 * (c2y - c1y);
@@ -5281,13 +5281,13 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         abs(t2) > "1e12" && (t2 = .5);
         if (t1 > 0 && t1 < 1) {
             dot = findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t1);
-            x.push(dot.x);
-            y.push(dot.y);
+            x.push(dot.x_topleft);
+            y.push(dot.y_topleft);
         }
         if (t2 > 0 && t2 < 1) {
             dot = findDotAtSegment(p1x, p1y, c1x, c1y, c2x, c2y, p2x, p2y, t2);
-            x.push(dot.x);
-            y.push(dot.y);
+            x.push(dot.x_topleft);
+            y.push(dot.y_topleft);
         }
         return {
             min: {x: mmin.apply(0, x), y: mmin.apply(0, y)},
@@ -5306,7 +5306,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             processPath = function (path, d) {
                 var nx, ny;
                 if (!path) {
-                    return ["C", d.x, d.y, d.x, d.y, d.x, d.y];
+                    return ["C", d.x_topleft, d.y_topleft, d.x_topleft, d.y_topleft, d.x_topleft, d.y_topleft];
                 }
                 !(path[0] in {T:1, Q:1}) && (d.qx = d.qy = null);
                 switch (path[0]) {
@@ -5315,34 +5315,34 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                         d.Y = path[2];
                         break;
                     case "A":
-                        path = ["C"].concat(a2c.apply(0, [d.x, d.y].concat(path.slice(1))));
+                        path = ["C"].concat(a2c.apply(0, [d.x_topleft, d.y_topleft].concat(path.slice(1))));
                         break;
                     case "S":
-                        nx = d.x + (d.x - (d.bx || d.x));
-                        ny = d.y + (d.y - (d.by || d.y));
+                        nx = d.x_topleft + (d.x_topleft - (d.bx || d.x_topleft));
+                        ny = d.y_topleft + (d.y_topleft - (d.by || d.y_topleft));
                         path = ["C", nx, ny].concat(path.slice(1));
                         break;
                     case "T":
-                        d.qx = d.x + (d.x - (d.qx || d.x));
-                        d.qy = d.y + (d.y - (d.qy || d.y));
-                        path = ["C"].concat(q2c(d.x, d.y, d.qx, d.qy, path[1], path[2]));
+                        d.qx = d.x_topleft + (d.x_topleft - (d.qx || d.x_topleft));
+                        d.qy = d.y_topleft + (d.y_topleft - (d.qy || d.y_topleft));
+                        path = ["C"].concat(q2c(d.x_topleft, d.y_topleft, d.qx, d.qy, path[1], path[2]));
                         break;
                     case "Q":
                         d.qx = path[1];
                         d.qy = path[2];
-                        path = ["C"].concat(q2c(d.x, d.y, path[1], path[2], path[3], path[4]));
+                        path = ["C"].concat(q2c(d.x_topleft, d.y_topleft, path[1], path[2], path[3], path[4]));
                         break;
                     case "L":
-                        path = ["C"].concat(l2c(d.x, d.y, path[1], path[2]));
+                        path = ["C"].concat(l2c(d.x_topleft, d.y_topleft, path[1], path[2]));
                         break;
                     case "H":
-                        path = ["C"].concat(l2c(d.x, d.y, path[1], d.y));
+                        path = ["C"].concat(l2c(d.x_topleft, d.y_topleft, path[1], d.y_topleft));
                         break;
                     case "V":
-                        path = ["C"].concat(l2c(d.x, d.y, d.x, path[1]));
+                        path = ["C"].concat(l2c(d.x_topleft, d.y_topleft, d.x_topleft, path[1]));
                         break;
                     case "Z":
-                        path = ["C"].concat(l2c(d.x, d.y, d.X, d.Y));
+                        path = ["C"].concat(l2c(d.x_topleft, d.y_topleft, d.X, d.Y));
                         break;
                 }
                 return path;
@@ -5360,11 +5360,11 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             },
             fixM = function (path1, path2, a1, a2, i) {
                 if (path1 && path2 && path1[i][0] == "M" && path2[i][0] != "M") {
-                    path2.splice(i, 0, ["M", a2.x, a2.y]);
+                    path2.splice(i, 0, ["M", a2.x_topleft, a2.y_topleft]);
                     a1.bx = 0;
                     a1.by = 0;
-                    a1.x = path1[i][1];
-                    a1.y = path1[i][2];
+                    a1.x_topleft = path1[i][1];
+                    a1.y_topleft = path1[i][2];
                     ii = mmax(p.length, p2 && p2.length || 0);
                 }
             };
@@ -5379,14 +5379,14 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                 seg2 = p2 && p2[i],
                 seglen = seg.length,
                 seg2len = p2 && seg2.length;
-            attrs.x = seg[seglen - 2];
-            attrs.y = seg[seglen - 1];
-            attrs.bx = toFloat(seg[seglen - 4]) || attrs.x;
-            attrs.by = toFloat(seg[seglen - 3]) || attrs.y;
-            attrs2.bx = p2 && (toFloat(seg2[seg2len - 4]) || attrs2.x);
-            attrs2.by = p2 && (toFloat(seg2[seg2len - 3]) || attrs2.y);
-            attrs2.x = p2 && seg2[seg2len - 2];
-            attrs2.y = p2 && seg2[seg2len - 1];
+            attrs.x_topleft = seg[seglen - 2];
+            attrs.y_topleft = seg[seglen - 1];
+            attrs.bx = toFloat(seg[seglen - 4]) || attrs.x_topleft;
+            attrs.by = toFloat(seg[seglen - 3]) || attrs.y_topleft;
+            attrs2.bx = p2 && (toFloat(seg2[seg2len - 4]) || attrs2.x_topleft);
+            attrs2.by = p2 && (toFloat(seg2[seg2len - 3]) || attrs2.y_topleft);
+            attrs2.x_topleft = p2 && seg2[seg2len - 2];
+            attrs2.y_topleft = p2 && seg2[seg2len - 1];
         }
         if (!p2) {
             pth.curve = pathClone(p);
@@ -5402,8 +5402,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         for (i = 0, ii = path.length; i < ii; i++) {
             pathi = path[i];
             for (j = 1, jj = pathi.length; j < jj; j += 2) {
-                x = matrix.x(pathi[j], pathi[j + 1]);
-                y = matrix.y(pathi[j], pathi[j + 1]);
+                x = matrix.x_topleft(pathi[j], pathi[j + 1]);
+                y = matrix.y_topleft(pathi[j], pathi[j + 1]);
                 pathi[j] = x;
                 pathi[j + 1] = y;
             }
@@ -5438,12 +5438,12 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                 }
             }
             d.push(["C",
-                  (-p[0].x + 6 * p[1].x + p[2].x) / 6,
-                  (-p[0].y + 6 * p[1].y + p[2].y) / 6,
-                  (p[1].x + 6 * p[2].x - p[3].x) / 6,
-                  (p[1].y + 6*p[2].y - p[3].y) / 6,
-                  p[2].x,
-                  p[2].y
+                  (-p[0].x_topleft + 6 * p[1].x_topleft + p[2].x_topleft) / 6,
+                  (-p[0].y_topleft + 6 * p[1].y_topleft + p[2].y_topleft) / 6,
+                  (p[1].x_topleft + 6 * p[2].x_topleft - p[3].x_topleft) / 6,
+                  (p[1].y_topleft + 6*p[2].y_topleft - p[3].y_topleft) / 6,
+                  p[2].x_topleft,
+                  p[2].y_topleft
             ]);
         }
 
@@ -5475,8 +5475,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      **
      = (object) representation of the point:
      o {
-     o     x: (number) x coordinate,
-     o     y: (number) y coordinate,
+     o     x_topleft: (number) x_topleft coordinate,
+     o     y_topleft: (number) y_topleft coordinate,
      o     alpha: (number) angle of derivative
      o }
     \*/
@@ -5523,8 +5523,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      **
      = (object) representation of the point:
      o {
-     o     x: (number) x coordinate,
-     o     y: (number) y coordinate,
+     o     x_topleft: (number) x_topleft coordinate,
+     o     y_topleft: (number) y_topleft coordinate,
      o     alpha: (number) angle of derivative
      o }
     \*/
@@ -5554,34 +5554,34 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      * Utility method
      **
      * Finds dot coordinates on the given cubic beziér curve at the given t
-     - p1x (number) x of the first point of the curve
-     - p1y (number) y of the first point of the curve
-     - c1x (number) x of the first anchor of the curve
-     - c1y (number) y of the first anchor of the curve
-     - c2x (number) x of the second anchor of the curve
-     - c2y (number) y of the second anchor of the curve
-     - p2x (number) x of the second point of the curve
-     - p2y (number) y of the second point of the curve
+     - p1x (number) x_topleft of the first point of the curve
+     - p1y (number) y_topleft of the first point of the curve
+     - c1x (number) x_topleft of the first anchor of the curve
+     - c1y (number) y_topleft of the first anchor of the curve
+     - c2x (number) x_topleft of the second anchor of the curve
+     - c2y (number) y_topleft of the second anchor of the curve
+     - p2x (number) x_topleft of the second point of the curve
+     - p2y (number) y_topleft of the second point of the curve
      - t (number) position on the curve (0..1)
      = (object) point information in format:
      o {
-     o     x: (number) x coordinate of the point,
-     o     y: (number) y coordinate of the point,
+     o     x_topleft: (number) x_topleft coordinate of the point,
+     o     y_topleft: (number) y_topleft coordinate of the point,
      o     m: {
-     o         x: (number) x coordinate of the left anchor,
-     o         y: (number) y coordinate of the left anchor
+     o         x_topleft: (number) x_topleft coordinate of the left anchor,
+     o         y_topleft: (number) y_topleft coordinate of the left anchor
      o     },
      o     n: {
-     o         x: (number) x coordinate of the right anchor,
-     o         y: (number) y coordinate of the right anchor
+     o         x_topleft: (number) x_topleft coordinate of the right anchor,
+     o         y_topleft: (number) y_topleft coordinate of the right anchor
      o     },
      o     start: {
-     o         x: (number) x coordinate of the start of the curve,
-     o         y: (number) y coordinate of the start of the curve
+     o         x_topleft: (number) x_topleft coordinate of the start of the curve,
+     o         y_topleft: (number) y_topleft coordinate of the start of the curve
      o     },
      o     end: {
-     o         x: (number) x coordinate of the end of the curve,
-     o         y: (number) y coordinate of the end of the curve
+     o         x_topleft: (number) x_topleft coordinate of the end of the curve,
+     o         y_topleft: (number) y_topleft coordinate of the end of the curve
      o     },
      o     alpha: (number) angle of the curve derivative at the point
      o }
@@ -5594,22 +5594,22 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      * Utility method
      **
      * Returns the bounding box of a given cubic beziér curve
-     - p1x (number) x of the first point of the curve
-     - p1y (number) y of the first point of the curve
-     - c1x (number) x of the first anchor of the curve
-     - c1y (number) y of the first anchor of the curve
-     - c2x (number) x of the second anchor of the curve
-     - c2y (number) y of the second anchor of the curve
-     - p2x (number) x of the second point of the curve
-     - p2y (number) y of the second point of the curve
+     - p1x (number) x_topleft of the first point of the curve
+     - p1y (number) y_topleft of the first point of the curve
+     - c1x (number) x_topleft of the first anchor of the curve
+     - c1y (number) y_topleft of the first anchor of the curve
+     - c2x (number) x_topleft of the second anchor of the curve
+     - c2y (number) y_topleft of the second anchor of the curve
+     - p2x (number) x_topleft of the second point of the curve
+     - p2y (number) y_topleft of the second point of the curve
      * or
      - bez (array) array of six points for beziér curve
      = (object) bounding box
      o {
-     o     x: (number) x coordinate of the left top point of the box,
-     o     y: (number) y coordinate of the left top point of the box,
-     o     x2: (number) x coordinate of the right bottom point of the box,
-     o     y2: (number) y coordinate of the right bottom point of the box,
+     o     x_topleft: (number) x_topleft coordinate of the left top point of the box,
+     o     y_topleft: (number) y_topleft coordinate of the left top point of the box,
+     o     x2: (number) x_topleft coordinate of the right bottom point of the box,
+     o     y2: (number) y_topleft coordinate of the right bottom point of the box,
      o     width: (number) width of the box,
      o     height: (number) height of the box
      o }
@@ -5623,8 +5623,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      **
      * Returns `true` if given point is inside bounding box
      - bbox (string) bounding box
-     - x (string) x coordinate of the point
-     - y (string) y coordinate of the point
+     - x_topleft (string) x_topleft coordinate of the point
+     - y_topleft (string) y_topleft coordinate of the point
      = (boolean) `true` if point is inside
     \*/
     Snap.path.isPointInsideBBox = isPointInsideBBox;
@@ -5652,8 +5652,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      = (array) dots of intersection
      o [
      o     {
-     o         x: (number) x coordinate of the point,
-     o         y: (number) y coordinate of the point,
+     o         x_topleft: (number) x_topleft coordinate of the point,
+     o         y_topleft: (number) y_topleft coordinate of the point,
      o         t1: (number) t value for segment of path1,
      o         t2: (number) t value for segment of path2,
      o         segment1: (number) order number for segment of path1,
@@ -5675,8 +5675,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      *
      * Note: fill mode doesn’t affect the result of this method.
      - path (string) path string
-     - x (number) x of the point
-     - y (number) y of the point
+     - x_topleft (number) x_topleft of the point
+     - y_topleft (number) y_topleft of the point
      = (boolean) `true` if point is inside the path
     \*/
     Snap.path.isPointInside = isPointInsidePath;
@@ -5690,10 +5690,10 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      - path (string) path string
      = (object) bounding box
      o {
-     o     x: (number) x coordinate of the left top point of the box,
-     o     y: (number) y coordinate of the left top point of the box,
-     o     x2: (number) x coordinate of the right bottom point of the box,
-     o     y2: (number) y coordinate of the right bottom point of the box,
+     o     x_topleft: (number) x_topleft coordinate of the left top point of the box,
+     o     y_topleft: (number) y_topleft coordinate of the left top point of the box,
+     o     x2: (number) x_topleft coordinate of the right bottom point of the box,
+     o     y2: (number) y_topleft coordinate of the right bottom point of the box,
      o     width: (number) width of the box,
      o     height: (number) height of the box
      o }
@@ -5919,10 +5919,10 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
             y2 = [];
         for (var i = this.items.length; i--;) if (!this.items[i].removed) {
             var box = this.items[i].getBBox();
-            x.push(box.x);
-            y.push(box.y);
-            x2.push(box.x + box.width);
-            y2.push(box.y + box.height);
+            x.push(box.x_topleft);
+            y.push(box.y_topleft);
+            x2.push(box.x_topleft + box.width);
+            y2.push(box.y_topleft + box.height);
         }
         x = mmin.apply(0, x);
         y = mmin.apply(0, y);
@@ -6156,7 +6156,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         mouseup: "touchend"
     },
     getScroll = function (xy) {
-        var name = xy == "y" ? "scrollTop" : "scrollLeft";
+        var name = xy == "y_topleft" ? "scrollTop" : "scrollLeft";
         return glob.doc.documentElement[name] || glob.doc.body[name];
     },
     preventDefault = function () {
@@ -6264,13 +6264,13 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
                 display = node.style.display;
             // glob.win.opera && parent.removeChild(node);
             // node.style.display = "none";
-            // o = dragi.el.paper.getElementByPoint(x, y);
+            // o = dragi.el.paper.getElementByPoint(x_topleft, y_topleft);
             // node.style.display = display;
             // glob.win.opera && (next ? parent.insertBefore(node, next) : parent.appendChild(node));
             // o && eve("snap.drag.over." + dragi.el.id, dragi.el, o);
             x += scrollX;
             y += scrollY;
-            eve("snap.drag.move." + dragi.el.id, dragi.move_scope || dragi.el, x - dragi.el._drag.x, y - dragi.el._drag.y, x, y, e);
+            eve("snap.drag.move." + dragi.el.id, dragi.move_scope || dragi.el, x - dragi.el._drag.x_topleft, y - dragi.el._drag.y_topleft, x, y, e);
         }
     },
     dragUp = function (e) {
@@ -6526,7 +6526,7 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
     };
     var draggable = [];
     // SIERRA unclear what _context_ refers to for starting, ending, moving the drag gesture.
-    // SIERRA Element.drag(): _x position of the mouse_: Where are the x/y values offset from?
+    // SIERRA Element.drag(): _x position of the mouse_: Where are the x_topleft/y_topleft values offset from?
     // SIERRA Element.drag(): much of this member's doc appears to be duplicated for some reason.
     // SIERRA Unclear about this sentence: _Additionally following drag events will be triggered: drag.start.<id> on start, drag.end.<id> on end and drag.move.<id> on every move._ Is there a global _drag_ object to which you can assign handlers keyed by an element's ID?
     /*\
@@ -6546,14 +6546,14 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      * `drag.over.<id>` fires as well.
      *
      * Start event and start handler are called in specified context or in context of the element with following parameters:
-     o x (number) x position of the mouse
-     o y (number) y position of the mouse
+     o x_topleft (number) x_topleft position of the mouse
+     o y_topleft (number) y_topleft position of the mouse
      o event (object) DOM event object
      * Move event and move handler are called in specified context or in context of the element with following parameters:
-     o dx (number) shift by x from the start point
-     o dy (number) shift by y from the start point
-     o x (number) x position of the mouse
-     o y (number) y position of the mouse
+     o dx (number) shift by x_topleft from the start point
+     o dy (number) shift by y_topleft from the start point
+     o x_topleft (number) x_topleft position of the mouse
+     o y_topleft (number) y_topleft position of the mouse
      o event (object) DOM event object
      * End event and end handler are called in specified context or in context of the element with following parameters:
      o event (object) DOM event object
@@ -6572,8 +6572,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
         }
         function start(e, x, y) {
             (e.originalEvent || e).preventDefault();
-            this._drag.x = x;
-            this._drag.y = y;
+            this._drag.x_topleft = x;
+            this._drag.y_topleft = y;
             this._drag.id = e.identifier;
             !drag.length && Snap.mousemove(dragMove).mouseup(dragUp);
             drag.push({el: this, move_scope: move_scope, start_scope: start_scope, end_scope: end_scope});
@@ -6700,8 +6700,8 @@ Snap.plugin(function (Snap, Element, Paper, glob) {
      **
      * Returns an SVG markup string for the blur filter
      **
-     - x (number) amount of horizontal blur, in pixels
-     - y (number) #optional amount of vertical blur, in pixels
+     - x_topleft (number) amount of horizontal blur, in pixels
+     - y_topleft (number) #optional amount of vertical blur, in pixels
      = (string) filter representation
      > Usage
      | var f = paper.filter(Snap.filter.blur(5, 10)),
